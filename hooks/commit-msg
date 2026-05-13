@@ -1,0 +1,26 @@
+#!/bin/bash
+# Hook commit-msg — AfriCode Hub
+# Vérifie la convention Conventional Commits
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+PATTERN="^(feat|fix|docs|chore|refactor|test|style)(\(.+\))?: .{1,}$"
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌ ERREUR : Message de commit non conforme à Conventional Commits."
+  echo ""
+  echo "   Format attendu : type(scope): description"
+  echo "   Types autorisés : feat, fix, docs, chore, refactor, test, style"
+  echo ""
+  echo "   Exemples valides :"
+  echo "     feat(auth): ajout de la connexion Google"
+  echo "     fix(forum): correction de l'affichage des réponses"
+  echo ""
+  echo "   Votre message : \"$COMMIT_MSG\""
+  exit 1
+fi
+
+echo "✅ [commit-msg] Message conforme : \"$COMMIT_MSG\""
+exit 0

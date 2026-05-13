@@ -1,0 +1,27 @@
+#!/bin/bash
+# Hook pre-commit — AfriCode Hub
+# Vérifie : pas de .log en staging, pas de console.log dans les .js
+
+echo "🔍 [pre-commit] Vérification de la qualité du code..."
+
+# Vérification 1 : pas de fichier .log dans le staging
+STAGED_LOGS=$(git diff --cached --name-only | grep '\.log$')
+if [ -n "$STAGED_LOGS" ]; then
+  echo "❌ ERREUR : Des fichiers .log sont dans la zone de staging :"
+  echo "$STAGED_LOGS"
+  echo "   Retirez-les avec : git reset HEAD <fichier>.log"
+  exit 1
+fi
+
+# Vérification 2 : pas de console.log dans les .js stagés
+STAGED_JS=$(git diff --cached --name-only | grep '\.js$')
+for FILE in $STAGED_JS; do
+  if git show ":$FILE" | grep -q "console\.log"; then
+    echo "❌ ERREUR : console.log détecté dans $FILE"
+    echo "   Supprimez les logs de débogage avant de commiter."
+    exit 1
+  fi
+done
+
+echo "✅ [pre-commit] Toutes les vérifications sont passées."
+exit 0
